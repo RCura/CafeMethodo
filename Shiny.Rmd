@@ -1,0 +1,122 @@
+---
+title: "Introduction à Shiny"
+author: "R. Cura & H. Commenges"
+date: "12 mars 2015"
+output:
+html_document:
+theme: cerulean
+toc: yes
+runtime: shiny
+---
+
+
+## 1 - Rappel sur les fonctions
+
+
+Plus de détails sur les fonctions dans le manuel [R pour les géographes](http://framabook.org/16-r-et-espace) (Chapitre 3) et sur le [blog ElementR](http://elementr.hypotheses.org/67). Dans l'exemple ci-dessous on combine dans une même fonction plusieurs traitements utiles à l'exploration d'une variable quantitative.
+
+
+```{r explofct, cache=TRUE}
+ExploreQuanti <- function(varquanti, addlines = TRUE){
+  # calcul des quartiles
+  varQuartiles <- quantile(varquanti, probs = seq(0, 1, 0.25), na.rm = TRUE)
+  
+  # combinaison des mesures de centralité et de dispersion
+  summaryVar <- c(MIN = min(varquanti, na.rm = TRUE),
+                  QUART1 = varQuartiles[2],
+                  MEDIAN = varQuartiles[3],
+                  QUART3 = varQuartiles[4],
+                  MAX = max(varquanti, na.rm = TRUE),
+                  MEAN = mean(varquanti, na.rm = TRUE),
+                  SD = sd(varquanti, na.rm = TRUE))
+  
+  summaryVar <- round(summaryVar, digits = 2)
+  
+  # affiche les résultats
+  hist(varquanti, breaks = 20, col = "grey30", border = "white")
+  if(addlines == TRUE){
+    abline(v = median(varquanti, na.rm = TRUE), col = "chocolate4", lwd = 3)
+    abline(v = mean(varquanti, na.rm = TRUE), col = "chartreuse4", lwd = 3)
+    }
+  
+  # désigne le(s) objet(s) à renvoyer en sortie
+  return(summaryVar)
+}
+
+```
+
+La fonction prend deux arguments en entrée : un vecteur numérique (varquanti) et un booléen (addlines) indiquant si la médiane et la moyenne doivent être tracés sur l'histogramme. En sortie, la fonction renvoie un vecteur de 7 valeurs contenant des mesures de centralité et de dispersion.
+
+
+## 2 - Exploration basique des données
+
+### Quelle distributions pour les variables ?
+
+```{r}
+load("data/eurosex.RData")
+```
+
+
+```{r, fig.show='asis', fig.width=3, fig.height = 3}
+hist(eurosex$THREEBED)
+
+hist(eurosex$ONENIGHT)
+
+hist(eurosex$WISHMORE)
+
+hist(eurosex$FREQYEAR)
+
+hist(eurosex$VIBRATOR)
+
+hist(eurosex$FIRSTSEX)
+```
+
+Et si on veut changer l'intervalle des barres ?
+
+```{r, fig.show = "hold", fig.width=3}
+hist(eurosex$THREEBED, breaks = 10)
+hist(eurosex$ONENIGHT, breaks = 10)
+hist(eurosex$WISHMORE, breaks = 10)
+```
+
+C'est long...
+
+
+
+## 3 - Histogramme interactif avec manipulate
+
+```{r, eval=FALSE}
+library(manipulate)
+manipulate(hist(x = eurosex[[myVar]], breaks = nbBreaks),
+           nbBreaks = slider(min = 2, max = 20),
+           myVar = picker("THREEBED", "ONENIGHT", "WISHMORE", "FREQYEAR", "VIBRATOR", "FIRSTSEX"))
+```
+
+Limites : ne fonctionne que dans RStudio, et ne peut être "partagé".
+
+## 4 - Histogramme interactif avec shiny
+
+Pour des applications plus dynamiques
+
+```{r}
+inputPanel(
+  selectInput(inputId = "variable", label = "Variable a decrire", choices = colnames(eurosex)),
+  sliderInput(inputId = "nbbreaks", label = "Nombre de barres", min = 2, max = 20, value = 5)
+  )
+
+
+renderPlot({
+  hist(x = eurosex[[input$variable]], breaks = input$nbbreaks)
+  })
+```
+
+
+## 5 - Créer une application interactive
+
+- Travail sur l'application `App1` : personnalise ton histogramme
+- Travail sur l'application `App2` : outil interactif de classification
+
+
+
+
+
