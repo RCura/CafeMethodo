@@ -1,0 +1,82 @@
+---
+title: "Documents reproductibles et *interactifs* d'analyse de données : Shiny"
+author: "Robin Cura"
+date: "10 juin 2015"
+output: 
+  html_document: 
+    theme: cerulean
+    toc: yes
+runtime: shiny
+---
+
+## 1 - Exploration basique des données
+
+### Quelles distributions pour les variables ?
+
+```{r}
+load("data/eurosex.RData")
+```
+
+
+```{r, fig.show='asis', fig.width=3, fig.height = 3}
+hist(eurosex$THREEBED)
+
+hist(eurosex$ONENIGHT)
+
+hist(eurosex$WISHMORE)
+
+hist(eurosex$FREQYEAR)
+
+hist(eurosex$VIBRATOR)
+
+hist(eurosex$FIRSTSEX)
+```
+
+Et si on veut changer l'intervalle des barres ?
+
+```{r, fig.show = "hold", fig.width=3}
+hist(eurosex$THREEBED, breaks = 10)
+hist(eurosex$ONENIGHT, breaks = 10)
+hist(eurosex$WISHMORE, breaks = 10)
+```
+
+C'est long...
+
+## 2 - Histogramme interactif avec shiny
+
+Pour des applications plus dynamiques
+
+```{r, eval = FALSE}
+inputPanel(
+  selectInput(inputId = "variable", label = "Variable à décrire", choices = colnames(eurosex)),
+  sliderInput(inputId = "nbbreaks", label = "Nombre de barres", min = 2, max = 20, value = 5)
+  )
+
+
+renderPlot({
+  hist(x = eurosex[[input$variable]], breaks = input$nbbreaks)
+  })
+```
+
+```{r, echo = FALSE}
+inputPanel(
+  selectInput(inputId = "variable", label = "Variable à décrire", choices = colnames(eurosex)),
+  sliderInput(inputId = "nbbreaks", label = "Nombre de barres", min = 2, max = 20, value = 5)
+  )
+
+
+renderPlot({
+  hist(x = eurosex[[input$variable]], breaks = input$nbbreaks)
+  })
+```
+
+
+## 3 - Créer une application interactive
+
+- Travail sur l'application `App1` : personnalise ton histogramme
+- Travail sur l'application `App2` : outil interactif de classification
+
+
+
+
+
