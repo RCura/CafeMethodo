@@ -70,6 +70,8 @@ renderPlot({
   })
 ```
 
+![alt text](img/schema_fonctionnement.png)
+
 
 ## 3 - Créer une application interactive
 
